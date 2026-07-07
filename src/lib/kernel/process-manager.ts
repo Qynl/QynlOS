@@ -5,9 +5,6 @@ export class ProcessManager {
   private nextPid = 1000;
   private pidQueue: number[] = [];
 
-  /**
-   * Create a new process
-   */
   createProcess(
     name: string,
     ppid: number | null = null,
@@ -37,32 +34,20 @@ export class ProcessManager {
     return process;
   }
 
-  /**
-   * Get process by PID
-   */
   getProcess(pid: number): Process | undefined {
     return this.processes.get(pid);
   }
 
-  /**
-   * Get all processes
-   */
   getAllProcesses(): Process[] {
     return Array.from(this.processes.values());
   }
 
-  /**
-   * Get child processes
-   */
   getChildProcesses(ppid: number): Process[] {
     return Array.from(this.processes.values()).filter(
       (p) => p.ppid === ppid
     );
   }
 
-  /**
-   * Update process state
-   */
   updateProcessState(
     pid: number,
     state: Process['state']
@@ -74,9 +59,6 @@ export class ProcessManager {
     return true;
   }
 
-  /**
-   * Update process CWD
-   */
   updateProcessCwd(pid: number, cwd: string): boolean {
     const process = this.processes.get(pid);
     if (!process) return false;
@@ -86,9 +68,6 @@ export class ProcessManager {
     return true;
   }
 
-  /**
-   * Terminate a process
-   */
   terminateProcess(pid: number, exitCode: number = 0): boolean {
     const process = this.processes.get(pid);
     if (!process) return false;
@@ -96,13 +75,11 @@ export class ProcessManager {
     process.state = 'stopped';
     process.exitCode = exitCode;
 
-    // Terminate child processes
     const children = this.getChildProcesses(pid);
     for (const child of children) {
       this.terminateProcess(child.pid, 1);
     }
 
-    // Remove process after cleanup
     setTimeout(() => {
       this.processes.delete(pid);
       this.freePid(pid);
@@ -111,9 +88,6 @@ export class ProcessManager {
     return true;
   }
 
-  /**
-   * Allocate a new PID
-   */
   private allocatePid(): number {
     if (this.pidQueue.length > 0) {
       return this.pidQueue.shift()!;
@@ -121,16 +95,10 @@ export class ProcessManager {
     return this.nextPid++;
   }
 
-  /**
-   * Free a PID for reuse
-   */
   private freePid(pid: number): void {
     this.pidQueue.push(pid);
   }
 
-  /**
-   * Get process statistics
-   */
   getStats(): {
     totalProcesses: number;
     runningProcesses: number;

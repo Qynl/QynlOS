@@ -25,9 +25,6 @@ export class Shell {
     this.currentProcess = process;
   }
 
-  /**
-   * Execute a shell command
-   */
   async execute(input: string): Promise<CommandResult> {
     const trimmed = input.trim();
     if (!trimmed) {
@@ -37,10 +34,8 @@ export class Shell {
     this.commandHistory.push(trimmed);
     this.historyIndex = this.commandHistory.length;
 
-    // Parse command
     const [cmd, ...args] = trimmed.split(/\s+/);
 
-    // Execute built-in commands
     switch (cmd) {
       case 'ls':
         return this.cmd_ls(args);
@@ -109,11 +104,6 @@ export class Shell {
   private cmd_cd(args: string[]): CommandResult {
     if (!args.length) {
       return { stdout: '', stderr: 'cd: missing argument', exitCode: 1 };
-    }
-
-    const target = this.pm.getProcess(this.currentProcess.pid);
-    if (!target) {
-      return { stdout: '', stderr: 'Process not found', exitCode: 1 };
     }
 
     const newCwd = this.fs.cd(args[0], this.currentProcess.cwd);
@@ -319,16 +309,10 @@ export class Shell {
     return { stdout: '', stderr: '', exitCode: 0 };
   }
 
-  /**
-   * Get command history
-   */
   getHistory(): string[] {
     return [...this.commandHistory];
   }
 
-  /**
-   * Get current process
-   */
   getCurrentProcess(): Process {
     return this.currentProcess;
   }

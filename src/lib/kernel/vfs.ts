@@ -29,9 +29,6 @@ export class VirtualFileSystem {
     this.mkdir('/proc', 0o555);
   }
 
-  /**
-   * Resolve a path to its absolute form
-   */
   private normalizePath(path: string, cwd: string = '/'): string {
     if (path.startsWith('/')) {
       return path;
@@ -39,16 +36,10 @@ export class VirtualFileSystem {
     return cwd === '/' ? `/${path}` : `${cwd}/${path}`;
   }
 
-  /**
-   * Split path into components
-   */
   private pathComponents(path: string): string[] {
     return path.split('/').filter((c) => c.length > 0);
   }
 
-  /**
-   * Navigate to a directory node
-   */
   private navigateTo(path: string): FileNode | null {
     if (path === '/') return this.root;
 
@@ -67,9 +58,6 @@ export class VirtualFileSystem {
     return current;
   }
 
-  /**
-   * Create a file
-   */
   createFile(path: string, content: string = '', owner: string = 'root'): boolean {
     const normalizedPath = this.normalizePath(path);
     const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/')) || '/';
@@ -81,7 +69,7 @@ export class VirtualFileSystem {
     }
 
     if (parent.children.has(fileName)) {
-      return false; // File already exists
+      return false;
     }
 
     const file: FileNode = {
@@ -101,9 +89,6 @@ export class VirtualFileSystem {
     return true;
   }
 
-  /**
-   * Read a file
-   */
   readFile(path: string): string | null {
     const node = this.navigateTo(this.normalizePath(path));
     if (!node || node.type !== 'file') {
@@ -112,9 +97,6 @@ export class VirtualFileSystem {
     return node.content || '';
   }
 
-  /**
-   * Write to a file (create or overwrite)
-   */
   writeFile(path: string, content: string): boolean {
     const normalizedPath = this.normalizePath(path);
     const node = this.navigateTo(normalizedPath);
@@ -129,9 +111,6 @@ export class VirtualFileSystem {
     return this.createFile(normalizedPath, content);
   }
 
-  /**
-   * Delete a file
-   */
   deleteFile(path: string): boolean {
     const normalizedPath = this.normalizePath(path);
     const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/')) || '/';
@@ -149,9 +128,6 @@ export class VirtualFileSystem {
     return deleted;
   }
 
-  /**
-   * Create a directory
-   */
   mkdir(path: string, permissions: number = 0o755): boolean {
     const normalizedPath = this.normalizePath(path);
     const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/')) || '/';
@@ -183,9 +159,6 @@ export class VirtualFileSystem {
     return true;
   }
 
-  /**
-   * List directory contents
-   */
   listDirectory(path: string): FileNode[] | null {
     const node = this.navigateTo(this.normalizePath(path));
     if (!node || node.type !== 'directory' || !node.children) {
@@ -194,23 +167,14 @@ export class VirtualFileSystem {
     return Array.from(node.children.values());
   }
 
-  /**
-   * Check if path exists
-   */
   exists(path: string): boolean {
     return this.navigateTo(this.normalizePath(path)) !== null;
   }
 
-  /**
-   * Get file/directory info
-   */
   stat(path: string): FileNode | null {
     return this.navigateTo(this.normalizePath(path));
   }
 
-  /**
-   * Change directory - resolve to absolute path
-   */
   cd(path: string, cwd: string): string | null {
     const target = this.normalizePath(path, cwd);
     const node = this.navigateTo(target);
@@ -220,9 +184,6 @@ export class VirtualFileSystem {
     return target;
   }
 
-  /**
-   * Get root node
-   */
   getRoot(): FileNode {
     return this.root;
   }
