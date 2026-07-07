@@ -92,11 +92,12 @@ export default function LandingPage() {
   return (
     <div
       ref={containerRef}
-      className="relative h-screen w-screen overflow-hidden bg-black"
+      className="relative h-screen w-screen overflow-hidden"
       style={
         {
-          "--mouse-x": 0,
-          "--mouse-y": 0,
+          backgroundColor: "#000",
+          "--mouse-x": "0",
+          "--mouse-y": "0",
         } as React.CSSProperties
       }
     >
@@ -195,7 +196,7 @@ export default function LandingPage() {
         >
           <AnimatePresence mode="wait">
             {isLaunching ? (
-              <motion.span
+              <motion.div
                 key="launching"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -207,9 +208,9 @@ export default function LandingPage() {
                   className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                 />
                 Booting QynlOS...
-              </motion.span>
+              </motion.div>
             ) : (
-              <motion.span
+              <motion.div
                 key="launch"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -217,7 +218,7 @@ export default function LandingPage() {
               >
                 Launch QynlOS
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.span>
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.button>
