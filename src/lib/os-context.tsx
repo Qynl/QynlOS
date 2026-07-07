@@ -6,7 +6,12 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import type { AppId, WindowState, WallpaperConfig } from "./os-types";
+import type {
+  AppId,
+  WindowState,
+  WallpaperConfig,
+  Notification,
+} from "./os-types";
 
 interface OSContextType {
   windows: WindowState[];
@@ -19,6 +24,7 @@ interface OSContextType {
   restoreWindow: (id: string) => void;
   updateWindowPosition: (id: string, x: number, y: number) => void;
   updateWindowSize: (id: string, width: number, height: number) => void;
+  snapWindow: (id: string, direction: "left" | "right" | "full") => void;
   toggleAppLauncher: () => void;
   isAppLauncherOpen: boolean;
   closeAppLauncher: () => void;
@@ -27,6 +33,11 @@ interface OSContextType {
   theme: "dark" | "light";
   setTheme: (t: "dark" | "light") => void;
   nextZIndex: () => number;
+  notifications: Notification[];
+  addNotification: (n: Omit<Notification, "id" | "timestamp">) => void;
+  dismissNotification: (id: string) => void;
+  mode: "landing" | "booting" | "os";
+  setMode: (m: "landing" | "booting" | "os") => void;
 }
 
 const OSContext = createContext<OSContextType | null>(null);
@@ -41,6 +52,8 @@ export function OSProvider({ children }: { children: ReactNode }) {
     label: "Deep Space",
   });
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [mode, setMode] = useState<"landing" | "booting" | "os">("landing");
   const zRef = useRef(10);
 
   const nextZIndex = useCallback(() => {
@@ -48,38 +61,61 @@ export function OSProvider({ children }: { children: ReactNode }) {
     return zRef.current;
   }, []);
 
-  const openApp = useCallback((appId: AppId, title: string) => {
-    const existing = windows.find(
-      (w) => w.appId === appId && !w.minimized
-    );
-    if (existing) {
-      setFocusedWindowId(existing.id);
-      setWindows((prev) =>
-        prev.map((w) =>
-          w.id === existing.id ? { ...w, zIndex: nextZIndex() } : w
-        )
-      );
-      return existing.id;
-    }
+  const addNotification = useCallback(
+    (n: Omit<Notification, "id" | "timestamp">) => {
+      const id = `notif-${Date.now()}`;
+      setNotifications((prev) => [
+        ...prev,
+        { ...n, id, timestamp: Date.now() },
+      ]);
+      setTimeout(() => {
+        setNotifications((prev) => prev.filter((x) => x.id !== id));
+      }, 5000);
+    },
+    []
+  );
 
-    const z = nextZIndex();
-    const id = `${appId}-${Date.now()}`;
-    const newWindow: WindowState = {
-      id,
-      appId,
-      title,
-      x: 80 + (windows.length * 30) % 200,
-      y: 60 + (windows.length * 20) % 150,
-      width: appId === "aichat" ? 500 : 780,
-      height: appId === "aichat" ? 600 : 520,
-      minimized: false,
-      maximized: false,
-      zIndex: z,
-    };
-    setWindows((prev) => [...prev, newWindow]);
-    setFocusedWindowId(id);
-    return id;
-  }, [windows, nextZIndex]);
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((x) => x.id !== id));
+  }, []);
+
+  const openApp = useCallback((appId: AppId, title: string) => {
+    setWindows((prev) => {
+      const existing = prev.find((w) => w.appId === appId && !w.minimized);
+      if (existing) {
+        setFocusedWindowId(existing.id);
+        return prev.map((w) =>
+          w.id === existing.id ? { ...w, zIndex: nextZIndex() } : w
+        );
+      }
+
+      const z = nextZIndex();
+      const id = `${appId}-${Date.now()}`;
+      const count = prev.length;
+      const sizes: Partial<Record<AppId, { w: number; h: number }>> = {
+        aichat: { w: 500, h: 600 },
+        calculator: { w: 320, h: 480 },
+        systemmonitor: { w: 500, h: 400 },
+        settings: { w: 680, h: 520 },
+      };
+      const size = sizes[appId] || { w: 780, h: 520 };
+      const newWindow: WindowState = {
+        id,
+        appId,
+        title,
+        x: 80 + (count * 30) % 200,
+        y: 60 + (count * 20) % 150,
+        width: size.w,
+        height: size.h,
+        minimized: false,
+        maximized: false,
+        zIndex: z,
+      };
+      setFocusedWindowId(id);
+      return [...prev, newWindow];
+    });
+    return `${appId}-${Date.now()}`;
+  }, [nextZIndex]);
 
   const closeWindow = useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
@@ -102,13 +138,43 @@ export function OSProvider({ children }: { children: ReactNode }) {
 
   const maximizeWindow = useCallback((id: string) => {
     setWindows((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, maximized: true } : w))
+      prev.map((w) => {
+        if (w.id !== id) return w;
+        if (w.maximized) {
+          return {
+            ...w,
+            maximized: false,
+            x: w.prevState?.x ?? w.x,
+            y: w.prevState?.y ?? w.y,
+            width: w.prevState?.width ?? w.width,
+            height: w.prevState?.height ?? w.height,
+            prevState: undefined,
+          };
+        }
+        return {
+          ...w,
+          maximized: true,
+          prevState: { x: w.x, y: w.y, width: w.width, height: w.height },
+        };
+      })
     );
   }, []);
 
   const restoreWindow = useCallback((id: string) => {
     setWindows((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, minimized: false, maximized: false } : w))
+      prev.map((w) => {
+        if (w.id !== id) return w;
+        return {
+          ...w,
+          minimized: false,
+          maximized: false,
+          x: w.prevState?.x ?? w.x,
+          y: w.prevState?.y ?? w.y,
+          width: w.prevState?.width ?? w.width,
+          height: w.prevState?.height ?? w.height,
+          prevState: undefined,
+        };
+      })
     );
     setFocusedWindowId(id);
   }, []);
@@ -129,6 +195,23 @@ export function OSProvider({ children }: { children: ReactNode }) {
       );
     },
     []
+  );
+
+  const snapWindow = useCallback(
+    (id: string, direction: "left" | "right" | "full") => {
+      const taskbarH = 56;
+      if (direction === "left") {
+        updateWindowPosition(id, 0, 0);
+        updateWindowSize(id, window.innerWidth / 2, window.innerHeight - taskbarH);
+      } else if (direction === "right") {
+        updateWindowPosition(id, window.innerWidth / 2, 0);
+        updateWindowSize(id, window.innerWidth / 2, window.innerHeight - taskbarH);
+      } else {
+        updateWindowPosition(id, 0, 0);
+        updateWindowSize(id, window.innerWidth, window.innerHeight - taskbarH);
+      }
+    },
+    [updateWindowPosition, updateWindowSize]
   );
 
   const toggleAppLauncher = useCallback(() => {
@@ -152,6 +235,7 @@ export function OSProvider({ children }: { children: ReactNode }) {
         restoreWindow,
         updateWindowPosition,
         updateWindowSize,
+        snapWindow,
         toggleAppLauncher,
         isAppLauncherOpen,
         closeAppLauncher,
@@ -160,6 +244,11 @@ export function OSProvider({ children }: { children: ReactNode }) {
         theme,
         setTheme,
         nextZIndex,
+        notifications,
+        addNotification,
+        dismissNotification,
+        mode,
+        setMode,
       }}
     >
       {children}

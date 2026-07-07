@@ -1,4 +1,11 @@
-export type AppId = "terminal" | "explorer" | "editor" | "aichat" | "settings";
+export type AppId =
+  | "terminal"
+  | "explorer"
+  | "editor"
+  | "aichat"
+  | "settings"
+  | "calculator"
+  | "systemmonitor";
 
 export interface AppDefinition {
   id: AppId;
@@ -20,10 +27,19 @@ export interface WindowState {
   minimized: boolean;
   maximized: boolean;
   zIndex: number;
+  prevState?: { x: number; y: number; width: number; height: number };
 }
 
 export interface WallpaperConfig {
   type: "gradient" | "solid" | "image";
   value: string;
   label: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  icon: string;
+  timestamp: number;
 }

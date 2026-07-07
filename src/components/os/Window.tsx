@@ -37,12 +37,14 @@ export default function Window({
     restoreWindow,
     updateWindowPosition,
     updateWindowSize,
+    snapWindow,
   } = useOS();
 
   const dragRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState<string | null>(null);
   const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0, px: 0, py: 0 });
+  const dragStartPos = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback(
     (_e: React.MouseEvent) => {
@@ -57,6 +59,7 @@ export default function Window({
       if (maximized) return;
       setIsDragging(true);
       const rect = dragRef.current?.parentElement?.getBoundingClientRect();
+      dragStartPos.current = { x: ev.clientX, y: ev.clientY };
       if (rect) {
         resizeStart.current = {
           x: ev.clientX - rect.left,
@@ -123,13 +126,29 @@ export default function Window({
     [isDragging, isResizing, maximized, id, updateWindowPosition, updateWindowSize]
   );
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    setIsResizing(null);
-  }, []);
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging && !maximized) {
+        // Snap detection
+        const threshold = 60;
+        const mouseEndX = e.clientX;
+        const mouseEndY = e.clientY;
+
+        // Check for snap
+        if (mouseEndX - resizeStart.current.x <= threshold && mouseEndY <= 40) {
+          snapWindow(id, "left");
+        } else if (window.innerWidth - mouseEndX <= threshold && mouseEndY <= 40) {
+          snapWindow(id, "right");
+        }
+      }
+      setIsDragging(false);
+      setIsResizing(null);
+    },
+    [isDragging, maximized, id, snapWindow]
+  );
 
   const displayWidth = maximized ? "100vw" : width;
-  const displayHeight = maximized ? "calc(100vh - 48px)" : height;
+  const displayHeight = maximized ? "calc(100vh - 56px)" : height;
   const displayX = maximized ? 0 : x;
 
   return (
@@ -151,7 +170,8 @@ export default function Window({
         focused
           ? "border-white/20 shadow-black/40"
           : "border-white/5 shadow-black/20",
-        maximized ? "rounded-none !top-0 !left-0" : ""
+        maximized ? "rounded-none !top-0 !left-0" : "",
+        isDragging && "shadow-2xl shadow-indigo-500/10 scale-[1.02] transition-shadow"
       )}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -178,21 +198,21 @@ export default function Window({
               e.stopPropagation();
               closeWindow(id);
             }}
-            className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-400 transition-colors"
+            className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-400 hover:scale-110 transition-all"
           />
           <button
             onClick={(e) => {
               e.stopPropagation();
               minimizeWindow(id);
             }}
-            className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-400 transition-colors"
+            className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-400 hover:scale-110 transition-all"
           />
           <button
             onClick={(e) => {
               e.stopPropagation();
               maximized ? restoreWindow(id) : maximizeWindow(id);
             }}
-            className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-400 transition-colors"
+            className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-400 hover:scale-110 transition-all"
           />
         </div>
         {/* Title */}
@@ -205,7 +225,7 @@ export default function Window({
       <div
         className="bg-black/50 backdrop-blur-2xl overflow-auto"
         style={{
-          height: maximized ? "calc(100vh - 48px - 40px)" : `calc(${height}px - 40px)`,
+          height: maximized ? "calc(100vh - 56px - 40px)" : `calc(${height}px - 40px)`,
         }}
       >
         {children}

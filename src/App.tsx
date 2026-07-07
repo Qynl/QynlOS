@@ -1,36 +1,69 @@
 import { OSProvider, useOS } from "@/lib/os-context";
 import Desktop from "@/components/os/Desktop";
 import Taskbar from "@/components/os/Taskbar";
-import { useEffect } from "react";
+import LandingPage from "@/components/os/LandingPage";
+import BootScreen from "@/components/os/BootScreen";
+import { AnimatePresence, motion } from "framer-motion";
 
-function BootScreen() {
-  const { openApp } = useOS();
-
-  useEffect(() => {
-    // Auto-open AI Chat on first load with a delay for dramatic effect
-    const timer = setTimeout(() => {
-      openApp("aichat", "AI Chat");
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  return null;
-}
-
-function QynlOS() {
+function DesktopOS() {
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-black">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="h-screen w-screen overflow-hidden flex flex-col bg-black"
+    >
       <Desktop />
       <Taskbar />
-      <BootScreen />
-    </div>
+    </motion.div>
+  );
+}
+
+function AppShell() {
+  const { mode } = useOS();
+
+  return (
+    <AnimatePresence mode="wait">
+      {mode === "landing" && (
+        <motion.div
+          key="landing"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 0.4 }}
+        >
+          <LandingPage />
+        </motion.div>
+      )}
+      {mode === "booting" && (
+        <motion.div
+          key="booting"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <BootScreen />
+        </motion.div>
+      )}
+      {mode === "os" && (
+        <motion.div
+          key="os"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <DesktopOS />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
 export default function App() {
   return (
     <OSProvider>
-      <QynlOS />
+      <AppShell />
     </OSProvider>
   );
 }
