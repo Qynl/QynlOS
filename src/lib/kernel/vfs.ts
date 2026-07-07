@@ -26,6 +26,7 @@ export class VirtualFileSystem {
     this.mkdir('/tmp', 0o777);
     this.mkdir('/sys', 0o555);
     this.mkdir('/dev', 0o755);
+    this.mkdir('/proc', 0o555);
   }
 
   /**
