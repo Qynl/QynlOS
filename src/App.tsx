@@ -1,12 +1,36 @@
-function App() {
+import { OSProvider, useOS } from "@/lib/os-context";
+import Desktop from "@/components/os/Desktop";
+import Taskbar from "@/components/os/Taskbar";
+import { useEffect } from "react";
+
+function BootScreen() {
+  const { openApp } = useOS();
+
+  useEffect(() => {
+    // Auto-open AI Chat on first load with a delay for dramatic effect
+    const timer = setTimeout(() => {
+      openApp("aichat", "AI Chat");
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return null;
+}
+
+function QynlOS() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold">QynlOS</h1>
-      <p className="mt-4 text-muted-foreground">
-        Free & open-source operating system by Qynl
-      </p>
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-black">
+      <Desktop />
+      <Taskbar />
+      <BootScreen />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <OSProvider>
+      <QynlOS />
+    </OSProvider>
+  );
+}
