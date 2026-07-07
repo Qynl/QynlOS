@@ -9,6 +9,8 @@ import {
   Activity,
   Settings,
   RefreshCw,
+  Globe,
+  Gamepad2,
 } from "lucide-react";
 import type { AppId } from "@/lib/os-types";
 
@@ -24,6 +26,8 @@ const menuItems: {
   action: string;
   appId?: AppId;
 }[] = [
+  { label: "Brave Browser", icon: <Globe className="w-4 h-4" />, action: "open", appId: "browser" },
+  { label: "Qynl Store", icon: <Gamepad2 className="w-4 h-4" />, action: "open", appId: "gamestore" },
   { label: "Terminal", icon: <Terminal className="w-4 h-4" />, action: "open", appId: "terminal" },
   { label: "Files", icon: <Folder className="w-4 h-4" />, action: "open", appId: "explorer" },
   { label: "Editor", icon: <FileText className="w-4 h-4" />, action: "open", appId: "editor" },
@@ -72,7 +76,7 @@ export default function ContextMenu({ x, y, onClose }: ContextMenuProps) {
       className="fixed z-[100] w-48 rounded-xl border border-white/10 bg-black/70 backdrop-blur-2xl shadow-2xl overflow-hidden"
     >
       <div className="py-1">
-        {menuItems.slice(0, 7).map((item) => (
+        {menuItems.slice(0, 9).map((item) => (
           <button
             key={item.label}
             onClick={() => handleAction(item.action, item.appId)}
@@ -83,7 +87,7 @@ export default function ContextMenu({ x, y, onClose }: ContextMenuProps) {
           </button>
         ))}
         <div className="h-px bg-white/5 my-1" />
-        {menuItems.slice(7).map((item) => (
+        {menuItems.slice(9).map((item) => (
           <button
             key={item.label}
             onClick={() => handleAction(item.action, item.appId)}

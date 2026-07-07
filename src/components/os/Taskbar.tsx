@@ -6,6 +6,8 @@ import AppLauncher from "./AppLauncher";
 import { motion, AnimatePresence } from "framer-motion";
 
 const appIcons: Record<string, string> = {
+  browser: "🦁",
+  gamestore: "🎮",
   terminal: ">",
   explorer: "📁",
   editor: "✏️",

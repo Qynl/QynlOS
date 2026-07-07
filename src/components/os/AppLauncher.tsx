@@ -6,6 +6,8 @@ import { Search } from "lucide-react";
 
 const apps: { id: AppId; name: string; icon: string; description: string }[] =
   [
+    { id: "browser", name: "Brave Browser", icon: "🦁", description: "Browse the web privately" },
+    { id: "gamestore", name: "Qynl Store", icon: "🎮", description: "Download & play games" },
     { id: "terminal", name: "Terminal", icon: ">", description: "Command-line interface" },
     { id: "explorer", name: "Files", icon: "📁", description: "File manager" },
     { id: "editor", name: "Editor", icon: "✏️", description: "Text editor" },

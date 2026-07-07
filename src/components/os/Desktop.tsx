@@ -15,6 +15,8 @@ const AIChatApp = lazy(() => import("@/components/apps/AIChat"));
 const SettingsApp = lazy(() => import("@/components/apps/Settings"));
 const CalculatorApp = lazy(() => import("@/components/apps/Calculator"));
 const SystemMonitorApp = lazy(() => import("@/components/apps/SystemMonitor"));
+const BraveBrowserApp = lazy(() => import("@/components/apps/BraveBrowser"));
+const GameStoreApp = lazy(() => import("@/components/apps/GameStore"));
 
 const appMap: Record<AppId, React.ComponentType<{ windowId: string }>> = {
   terminal: TerminalApp,
@@ -24,6 +26,8 @@ const appMap: Record<AppId, React.ComponentType<{ windowId: string }>> = {
   settings: SettingsApp,
   calculator: CalculatorApp,
   systemmonitor: SystemMonitorApp,
+  browser: BraveBrowserApp,
+  gamestore: GameStoreApp,
 };
 
 function AppRenderer({ appId, windowId }: { appId: AppId; windowId: string }) {

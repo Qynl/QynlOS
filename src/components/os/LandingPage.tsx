@@ -29,13 +29,13 @@ const features = [
   },
   {
     icon: Shield,
-    title: "Privacy First",
-    desc: "Zero telemetry. Your data never leaves your computer.",
+    title: "Brave Browser",
+    desc: "Privacy-first web browsing with shields up. Block trackers & ads.",
   },
   {
     icon: Cpu,
-    title: "Lightning Fast",
-    desc: "Optimized performance. No bloat, no junk, just speed.",
+    title: "Game Ready",
+    desc: "Download & play Minecraft, Valorant, Roblox, Fortnite & more.",
   },
   {
     icon: FolderCode,

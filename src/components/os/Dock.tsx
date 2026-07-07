@@ -10,10 +10,12 @@ interface DockItemDef {
 }
 
 const dockApps: DockItemDef[] = [
+  { id: "browser", name: "Brave", icon: "🦁" },
   { id: "terminal", name: "Terminal", icon: ">" },
   { id: "explorer", name: "Files", icon: "📁" },
   { id: "editor", name: "Editor", icon: "✏️" },
   { id: "aichat", name: "AI Chat", icon: "🤖" },
+  { id: "gamestore", name: "Store", icon: "🎮" },
   { id: "calculator", name: "Calculator", icon: "🧮" },
   { id: "systemmonitor", name: "System", icon: "📊" },
   { id: "settings", name: "Settings", icon: "⚙️" },

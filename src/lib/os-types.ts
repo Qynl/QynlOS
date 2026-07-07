@@ -5,7 +5,9 @@ export type AppId =
   | "aichat"
   | "settings"
   | "calculator"
-  | "systemmonitor";
+  | "systemmonitor"
+  | "browser"
+  | "gamestore";
 
 export interface AppDefinition {
   id: AppId;
