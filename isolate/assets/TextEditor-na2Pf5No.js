@@ -1,4 +1,4 @@
-import{r as s,j as e}from"./index-BJdfp2Tq.js";function b({windowId:p}){var o;const[n,r]=s.useState(`// Welcome to QynlOS Editor
+import{r as s,j as e}from"./index-BbITEj2M.js";function b({windowId:p}){var o;const[n,r]=s.useState(`// Welcome to QynlOS Editor
 // Start typing your code below
 
 function greet(name: string) {

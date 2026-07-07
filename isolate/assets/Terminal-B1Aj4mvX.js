@@ -1,4 +1,4 @@
-import{r as l,j as y,c as _}from"./index-BJdfp2Tq.js";const f={"/":{type:"dir"},"/home":{type:"dir"},"/home/qynl":{type:"dir"},"/home/qynl/Documents":{type:"dir"},"/home/qynl/Downloads":{type:"dir"},"/home/qynl/Projects":{type:"dir"},"/home/qynl/Pictures":{type:"dir"},"/home/qynl/hello.txt":{type:"file",content:`Welcome to QynlOS!
+import{r as l,j as y,c as _}from"./index-BbITEj2M.js";const f={"/":{type:"dir"},"/home":{type:"dir"},"/home/qynl":{type:"dir"},"/home/qynl/Documents":{type:"dir"},"/home/qynl/Downloads":{type:"dir"},"/home/qynl/Projects":{type:"dir"},"/home/qynl/Pictures":{type:"dir"},"/home/qynl/hello.txt":{type:"file",content:`Welcome to QynlOS!
 Your free, open-source operating system.`},"/home/qynl/Documents/readme.md":{type:"file",content:`# QynlOS
 
 The OS of the future. Built for everyone.`},"/home/qynl/Documents/notes.txt":{type:"file",content:`TODO:
